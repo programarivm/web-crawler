@@ -1,0 +1,24 @@
+{
+    "name": "programarivm/web-crawler",
+    "description": "Performs a simple scan on a website's XML sitemap storing the resources found into a MySQL database.",
+    "keywords": [
+        "crawl",
+        "crawler",
+        "web crawler",
+        "spider",
+        "web spider",
+        "spider"
+    ],
+    "autoload": {
+        "psr-4": {
+            "WebCrawler\\": "src/"
+        }
+    },
+    "license": "GPL License",
+    "authors": [
+        {
+            "name": "Jordi Bassagañas",
+            "email": "info@programarivm.com"
+        }
+    ]
+}
