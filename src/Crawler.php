@@ -24,6 +24,12 @@ class Crawler extends \WebCrawler\Singleton
      */
     protected $network;
     /**
+     * XML sitemap.
+     *
+     * @var \SimpleXMLElement The sitemap in XML format.
+     */
+    protected $xml;
+    /**
      * Initializes the values.
      */
     public function init($db, $network)
@@ -31,6 +37,22 @@ class Crawler extends \WebCrawler\Singleton
         $this->db = $db;
         $this->network = $network;
         return $this;
+    }
+    /**
+     * Loads the given XML sitemap into memory.
+     *
+     * @return boolean|SimpleXMLElement
+     */
+    public function loadXml($url)
+    {
+      libxml_use_internal_errors(true); // disables libxml errors
+      $httpResponse = $this->network->getResource($url);
+      $this->xml = simplexml_load_string($httpResponse['body']);
+      if ($this->xml === false)
+      {
+        throw new \Exception("There's something wrong. Please check this XML sitemap and make sure the site is not down. Thank you!");
+      }
+      return $this;
     }
     /**
      * Indexes the given resource.
@@ -52,17 +74,15 @@ class Crawler extends \WebCrawler\Singleton
         sleep(4);
     }
     /**
-     * Scans the given XML sitemap searching resources to be indexed.
-     *
-     * @param \SimpleXMLElement $xml
+     * Scans the XML sitemap looking for resources to be indexed.
      */
-    public function go($xml)
+    public function go()
     {
         $nIndexed = 0;
-        if ($xml->getName() === 'sitemapindex')
+        if ($this->xml->getName() === 'sitemapindex')
         {
             // loop through the sitemaps
-            foreach($xml->sitemap as $xmlSitemap)
+            foreach($this->xml->sitemap as $xmlSitemap)
             {
                 $httpResponse = $this->network->getResource((string)$xmlSitemap->loc);
                 $sitemap = simplexml_load_string($httpResponse['body']);
@@ -83,9 +103,9 @@ class Crawler extends \WebCrawler\Singleton
                 }
             }
         }
-        elseif ($xml->getName() === 'urlset')
+        elseif ($this->xml->getName() === 'urlset')
         {
-            foreach($xml->url as $url)
+            foreach($this->xml->url as $url)
             {
                 if($nIndexed <= self::MAX_LINKS-1)
                 {
