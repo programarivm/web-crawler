@@ -68,7 +68,7 @@ class Crawler extends \WebCrawler\Singleton
         $content = $this->db->escape($data['httpResponse']['body']);
         // insert resource into database
         $sql = "INSERT INTO resources (http_code, url, content) "
-            . "VALUES ('{$data['httpResponse']['header']['code']}', '{$data['url']}', '$content')";
+            . "VALUES ('$code', '$url', '$content')";
         $this->db->query($sql);
         // wait 4 seconds
         sleep(4);
